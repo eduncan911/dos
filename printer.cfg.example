@@ -1,0 +1,32 @@
+; Copyright (c) Eric Duncan (license@eduncan911.com)
+; Free for non-commercial use. Commercial use requires separate license.
+; See LICENSE file for full terms.
+
+; To enable DOS, uncomment the following line by removing
+; the semi-colon prefix and saving this file.
+; 
+[include common/*.cfg]
+
+; Uncomment the mfg printer you would like to start with.
+; 
+;[include printers/creality_cr6/*.cfg]      ; rpi, pcb, toolhead, lcd
+;[include printers/creality_cr10/*.cfg]     ; rpi, pcb, toolhead, lcd
+;[include printers/kossel_2020/*.cfg]       ; rpi, pcb, everything
+;[include printers/ratrig_v-minion/*.cfg]   ; overhauled V-Minion
+;[include printers/qidi_plus4/*.cfg]        ; carbonfiber bed, no load-cells, QidiBox
+
+; These are highly modified DIY printers based on
+; VoronDesign and Rat-Rig.
+; 
+;[include printers/karbon/*.cfg]            ; high-temp 48V V2.4 
+;[include printers/stung_minion/*.cfg]      ; overhauled V-Minion
+;[include printers/voron_v2/*.cfg]          ; pla/petg 48V V2.4
+;[include printers/zero_effs/*.cfg]         ; modded F-Zero / V0.1
+
+; These are prototypes and should not be used.
+; 
+;[include printers/nevermore_01/*.cfg]
+
+; Finally, we want to include any user overrides.
+;
+[include overrides/*.cfg]

@@ -1,0 +1,16 @@
+; Copyright (c) Eric Duncan (license@eduncan911.com)
+; Free for non-commercial use. Commercial use requires separate license.
+; See LICENSE file for full terms.
+
+; a different PT1000 heater was in the carbon fiber bed
+; 
+[heater_bed]
+sensor_type: PT1000
+max_power: 1.0
+min_temp: -60
+max_temp: 125
+
+; adjust due to the carbon-fiber composite
+; 
+[verify_heater heater_bed]
+check_gain_time:180

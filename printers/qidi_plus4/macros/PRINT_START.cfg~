@@ -1,0 +1,132 @@
+; Copyright (c) Eric Duncan (license@eduncan911.com)
+; Free for non-commercial use. Commercial use requires separate license.
+; See LICENSE file for full terms.
+
+[gcode_macro PRINT_START]
+gcode:
+  M117 START PRINT
+
+  ; _START_PRE_INIT
+  ; 
+  UPDATE_DELAYED_GCODE ID=DELAY_NEVERMORE_OFF DURATION=0
+  UPDATE_DELAYED_GCODE ID=DELAY_BOARD_FAN_SILENT DURATION=0
+  AUTOTUNE_SHAPERS
+  TOOL_CHANGE_END
+  DISABLE_ALL_SENSOR
+  CLEAR_PAUSE
+  {% if printer["temperature_fan adaptive_board_fan"] is defined %}
+    SET_TEMPERATURE_FAN_TARGET TEMPERATURE_FAN=adaptive_board_fan TARGET=45
+  {% endif %}
+
+  {% set extruder = params.EXTRUDER|default(0)|int %}
+  {% set bedtemp = params.BED|default(57)|int %}
+  {% set hotendtemp = params.HOTEND|default(257)|int %}
+  {% set chambertemp = params.CHAMBER|default(0)|int %}
+  {% set min_temp = 170 %}
+
+  ; _START_INIT
+  ; 
+  M117 Start all heaters
+  M140 S{bedtemp}
+  M141 S{chambertemp}
+  M104 S{hotendtemp}
+
+  ; _START_HOMING
+  ; 
+  {% if "xyz" in printer.toolhead.homed_axes %}
+    M117 All axis already homed, skipping.
+    G0 X50 Y50 F7800
+  {% endif %}
+  G28
+
+  ; _START_TOOL
+  ; 
+  TOOL_CHANGE TOOL={ extruder } TEMP={ hotendtemp }
+  DISABLE_ALL_SENSOR
+
+  ; a quick clean to knock ooze off the nozzle 
+  M117 Move to bucket
+  M141 S{chambertemp}
+  G1 X93 F12000
+  G1 Y300 F12000
+  G1 Y324 F1000
+
+  M117 Waiting on extruder
+  TEMPERATURE_WAIT SENSOR=extruder MINIMUM=170
+  M104 S140 ; now drop the temps
+  M141 S{chambertemp}
+
+  M117 Quick nozzle wipe and plug
+  G1 Y324 F600
+  G1 Y310 F1200
+  G1 X56 F12000
+  G1 Y310 F12000
+  G1 Y324 F600
+  G1 X93 F600
+  G1 Y325 F6000
+  G1 X{ 123 + (range(-7, 7) | random) / 10 } Y{ 321 + (range(-4, 4) | random) / 10 } F600
+  M141 S{chambertemp}
+  M400
+  M117 Waiting on extruder to cool to 150
+  TEMPERATURE_WAIT SENSOR=extruder MAXIMUM=150
+
+  ; _START_Z_OFFSETS
+  ; 
+  M117 Wait for bed temp
+  M141 S{chambertemp}
+  M140 S{bedtemp}
+  TEMPERATURE_WAIT SENSOR=heater_bed MINIMUM={ bedtemp - 1 }
+
+  M117 Setup z-offset
+  G28 Z
+  M141 S{chambertemp}
+  set_zoffset
+  M141 S{chambertemp}
+  M117 Run G29 for mesh
+  G31 ; enable mesh
+  G29 ; perform all the z-offset and mesh things
+  M141 S{chambertemp}
+
+  ; _START_TOOL_PURGE
+  ; 
+  M117 Clear nozzle and purge
+  M104 S{hotendtemp} # start heating to print tempterautre
+  M141 S{chambertemp}
+  G1 X93 F12000 # park over chute
+  G1 Y300 F6000
+  G1 Y324 F600
+  ;M109 S{hotendtemp}
+  M141 S{chambertemp}
+  CLEAR_NOZZLE HOTEND={hotendtemp} PURGE=0 COOLDOWN=0
+
+  M117 Waiting for all heaters
+  M191 S{chambertemp}
+  M109 S{hotendtemp}
+
+  ; exit chute / plugged area
+  G1 Y300 F300
+
+
+
+
+
+
+  ; _START_FINAL_PURGE
+  ; 
+
+  ; line purge position 
+  G0 X150 Y0 F7800
+  G0 Y-2 F2400
+  LINE_PURGE
+
+  ; _START_FINAL
+  ; 
+  ENABLE_ALL_SENSOR
+  save_last_file
+  M106 P0 S0
+  M106 P2 S0
+  G92 E0
+  SET_PRINT_STATS_INFO CURRENT_LAYER=1
+
+  # start printing
+  M117 
