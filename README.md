@@ -28,22 +28,6 @@ echo "[include dos/*.cfg]" >> ~/printer_data/config/printer.cfg
 # enable the [dos] klipper plugins
 ln -sf ~/dos/common/extras/dos.py ~/klipper/klippy/extras/
 ln -sf ~/dos/common/extras/dos ~/klipper/klippy/extras/
-
-# modify moonraker to keep DOS up-to-date
-cat << EOF >> ~/printer_data/config/moonraker.cfg
-[update_manager dos]
-type: git_repo
-channel: dev
-path: ~/dos
-origin: https://github.com/eduncan911/dos.git
-env: ~/klippy-env/bin/python
-requirements: requirements.txt
-install_script: install.sh
-is_system_service: False
-managed_services: klipper
-info_tags:
-  desc=DOS Firmware
-EOF
 ```
 
 The above is harmless as it will not actually load anything just yet.  
@@ -64,10 +48,23 @@ Rename any file to be suffix with `.disabled`.  For example, to disable the Carb
 
 ## How to upgrade DOS
 
-Use Fluidd's upgrade interface.  
-
-To upgrade manually, log into the printer's console and run:
+Let's enable automatic updates from Moonraker to be controlled via Fluidd.  SSH into your printer again, and run this command.
 
 ```
-~/dos/upgrade.sh
+# modify moonraker to keep DOS up-to-date
+cat << EOF >> ~/printer_data/config/moonraker.cfg
+[update_manager]
+refresh_interval: 24
+enable_auto_refresh: True
+
+[update_manager dos]
+type: git_repo
+channel: dev
+path: ~/dos
+origin: https://github.com/eduncan911/dos.git
+primary_branch: main
+is_system_service: False
+managed_services: klipper
+info_tags:
+  desc=DOS Firmware
 ```

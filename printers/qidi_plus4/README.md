@@ -57,3 +57,6 @@ A few built-in options:
 
 I also have an 8mm carbon-fiber bed that I had to change the sensor type.  I only note as it is disabled, along with the QidiBox1 if you do not have one.  But if you do, you would want to copy and rename that one.
 
+## Credits
+
+None of this would be possible without the great contributions from the Qidi Community.  Their work made for a very capable printer.  

@@ -23,10 +23,6 @@
 ;[include printers/voron_v2/*.cfg]          ; pla/petg 48V V2.4
 ;[include printers/zero_effs/*.cfg]         ; modded F-Zero / V0.1
 
-; These are prototypes and should not be used.
-; 
-;[include printers/nevermore_01/*.cfg]
-
 ; Finally, we want to include any user overrides.
 ;
 [include overrides/*.cfg]
